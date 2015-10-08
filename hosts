@@ -1,0 +1,7 @@
+[master]
+node0.example.com
+
+[minions]
+node1.example.com
+node2.example.com
+node3.example.com

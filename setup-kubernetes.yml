@@ -1,0 +1,11 @@
+- hosts: all
+  roles:
+    - setup-common
+
+- hosts: master
+  roles:
+    - setup-master
+
+- hosts: minions
+  roles:
+    - setup-minion

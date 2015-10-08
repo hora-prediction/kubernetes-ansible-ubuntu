@@ -1,0 +1,35 @@
+- name: Check existing kubernetes
+  stat: path=/opt/kubernetes
+  register: kubernetes_reg
+
+- name: Download kubernetes binary
+  get_url:
+    url=https://github.com/kubernetes/kubernetes/releases/download/v1.0.6/kubernetes.tar.gz
+    dest=/opt/kubernetes.tar.gz
+    force=no
+  sudo: yes
+  when: kubernetes_reg.stat.exists == false
+
+- name: Extract kubernetes
+  shell: tar xzf kubernetes.tar.gz chdir=/opt
+  sudo: yes
+  when: kubernetes_reg.stat.exists == false
+
+- name: Copy config-default.sh
+  template:
+    src=config-default.sh
+    dest=/opt/kubernetes/cluster/ubuntu/config-default.sh
+    backup=yes
+  sudo: yes
+
+- name: Run cluster/ubuntu/build.sh to download binaries
+  shell: ./build.sh chdir=/opt/kubernetes/cluster/ubuntu
+  sudo: yes
+
+- name: Copy kubectl binary to /usr/local/bin/
+  shell: cp /opt/kubernetes/platforms/linux/amd64/kubectl /usr/local/bin/kubectl
+  sudo: yes
+
+- name: Chmod kubectl
+  file: path=/usr/local/bin/kubectl mode=0755
+  sudo: yes

@@ -1,0 +1,29 @@
+- name: Check if docker is already installed
+  shell: which docker
+  register: docker_reg
+  ignore_errors: yes
+
+- name: Install docker
+  shell: curl -sSL https://get.docker.com/ | sh
+  when: docker_reg.rc == 1
+
+- name: Add ssh user to docker group
+  user:
+    name={{ ansible_ssh_user }}
+    groups=docker
+    append=yes
+  sudo: yes
+
+- name: Drop nat in iptables
+  shell: iptables -t nat -F
+  sudo: yes
+
+- name: Bring docker0 interface down
+  shell: ifconfig docker0 down
+  sudo: yes
+  ignore_errors: yes
+
+- name: Delete docker0 bridge
+  shell: brctl delbr docker0
+  sudo: yes
+  ignore_errors: yes
